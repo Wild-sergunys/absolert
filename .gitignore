@@ -1,0 +1,31 @@
+# Build and test output
+/bin/
+/dist/
+*.exe
+*.test
+coverage.out
+coverage.html
+*.prof
+*.pprof
+
+# Machine-specific configuration and secrets
+.env
+.env.*
+!.env.example
+*.local.yaml
+*.local.yml
+go.work
+go.work.sum
+
+# Private traffic and generated analysis
+*.pcap
+*.pcapng
+/graphify-out/
+
+# Editor and OS files
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
