@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-var invalidInterface = errors.New("сетевой интерфейс не указан")
+var errInvalidInterface = errors.New("сетевой интерфейс не указан")
 
 func main() {
 	err := run()
@@ -22,7 +22,7 @@ func run() error {
 	interfaceFlag := flag.String("interface", "", "выбор интерфейса")
 	flag.Parse()
 	if *interfaceFlag == "" {
-		return invalidInterface
+		return errInvalidInterface
 	}
 	fmt.Printf("Выбран интерфейс: %q\n", *interfaceFlag)
 	return nil

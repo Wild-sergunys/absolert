@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Получить исходники
+        uses: actions/checkout@v7
+      - name: Установить Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: Собрать проект
+        run: make build
+      - name: Запустить тесты
+        run: make test
+      - name: Проверить код
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.15.0
