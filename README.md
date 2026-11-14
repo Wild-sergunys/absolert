@@ -75,3 +75,7 @@ TLS decryption and HTTP/2 parsing are outside the first milestone.
 Packet captures may contain sensitive data. Raw captures and local settings are
 excluded from version control; redistributable test fixtures must be synthetic
 or explicitly sanitized.
+
+## License
+
+[MIT](LICENSE) — Copyright (c) 2026 Wild-sergunys.
