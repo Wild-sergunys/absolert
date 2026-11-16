@@ -18,13 +18,55 @@ add plaintext HTTP/1.1 analysis, selected SQLi/XSS rules, and event storage.
 
 ## Status
 
-The Go module and directory layout are initialized. No Go source files, executable,
-packet capture, or detectors have been implemented yet. There are no build or run
-commands at this stage.
+The CLI now captures Ethernet/unfragmented IPv4/TCP packets from a selected Linux
+interface and prints timestamps, endpoints, and flags. It stops on SIGINT/SIGTERM
+and reports processing counters and libpcap statistics. Decoding and the processing
+loop are tested using synthetic packets; live capture through Absolert still needs
+verification on the lab. No detectors, API, or web interface are implemented yet.
 
 A two-host Ethernet lab has been checked manually: ICMP, an HTTP request, and
 bidirectional packet capture on the Linux receiver worked. This validates the
 lab connection, not Absolert itself.
+
+## Сборка и первый захват
+
+Требуются Go версии из `go.mod`, C-компилятор, заголовки и библиотека libpcap.
+Для EndeavourOS/Arch: `sudo pacman -S --needed base-devel libpcap`.
+Для Ubuntu/Debian: `sudo apt-get install build-essential libpcap-dev`.
+Проверка библиотеки: `pkg-config --modversion libpcap`. Сборка использует CGO.
+
+```bash
+make build
+make test
+make lint
+```
+
+Для `make lint` нужен golangci-lint **2.15.0** в `PATH`, собранный Go 1.27
+или новее. CI использует ту же версию линтера и читает версию Go из `go.mod`.
+
+Захват запускается пользователем на выбранном интерфейсе:
+
+```bash
+sudo ./bin/absolert --interface enp3s0
+```
+
+Имя интерфейса заменяется своим. Для остановки — Ctrl+C. Не запускайте `go run`
+через sudo: сначала соберите бинарник обычным пользователем. Отдельная выдача
+минимальных прав захвата будет настроена позже.
+
+Вывод содержит адреса и порты: не публикуйте необезличенный вывод реального трафика.
+Содержимое запросов не выводится и не сохраняется. Вывод каждой TCP-записи —
+временная диагностика, которая может стать узким местом при высокой нагрузке.
+
+Первый режим без promiscuous mode наблюдает доступный хосту обмен. BPF-фильтр пока
+не применяется: неподдерживаемые пакеты тоже учитываются. IPv6, VLAN и IP-фрагменты
+не анализируются. Усечение захвата (snaplen 65535) учитывается отдельно от ошибок
+разбора. Контрольные суммы не проверяются из-за возможного offload на хосте.
+Это декодирование полей, а не проверка корректности полного TCP-сеанса.
+
+Строка `libpcap` содержит счётчики библиотеки, их семантика зависит от ОС.
+Они не обязаны совпадать с числом прочитанных программой пакетов; ноль в счётчике
+потерь интерфейса не доказывает отсутствие потерь, если драйвер их не сообщает.
 
 ## First milestone
 

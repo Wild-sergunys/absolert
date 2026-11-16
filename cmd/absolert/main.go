@@ -1,10 +1,15 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/wild-sergunys/absolert/internal/sensor"
 )
 
 var errInvalidInterface = errors.New("сетевой интерфейс не указан")
@@ -24,6 +29,7 @@ func run() error {
 	if *interfaceFlag == "" {
 		return errInvalidInterface
 	}
-	fmt.Printf("Выбран интерфейс: %q\n", *interfaceFlag)
-	return nil
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	return sensor.Run(ctx, *interfaceFlag, os.Stdout)
 }
