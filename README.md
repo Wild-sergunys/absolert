@@ -21,8 +21,10 @@ add plaintext HTTP/1.1 analysis, selected SQLi/XSS rules, and event storage.
 The CLI now captures Ethernet/unfragmented IPv4/TCP packets from a selected Linux
 interface and prints timestamps, endpoints, and flags. It stops on SIGINT/SIGTERM
 and reports processing counters and libpcap statistics. Decoding and the processing
-loop are tested using synthetic packets; live capture through Absolert still needs
-verification on the lab. No detectors, API, or web interface are implemented yet.
+loop are tested using synthetic packets; live capture, counters, and shutdown
+have also been checked on the lab. A strict loader for a small Suricata rule
+subset is implemented separately; rule execution is not connected yet.
+Detectors, API, and web interface are not implemented yet.
 
 A two-host Ethernet lab has been checked manually: ICMP, an HTTP request, and
 bidirectional packet capture on the Linux receiver worked. This validates the
@@ -87,8 +89,8 @@ The sensor will start as one Go process with focused internal packages. Packet
 capture, protocol decoding, and detection will remain separate so that detector
 tests can run without capture privileges or live network access.
 
-A browser UI is planned after capture verification, before completing the first
-detector. PostgreSQL follows the first live alert view. A separate API process is
+A browser UI is planned after the first rule produces an explainable alert
+in the terminal. PostgreSQL follows the first live alert view. A separate API process is
 planned to keep web requests outside the privileged capture process. Kafka, Redis, and gRPC are not prerequisites for this milestone.
 
 The project will support only an explicitly documented subset of Suricata rules,
@@ -106,6 +108,7 @@ delivery across process failures. The API will initially listen on loopback only
 - [Architecture](docs/ARCHITECTURE.md) — boundaries, data flow, and open decisions.
 - [Roadmap](docs/ROADMAP.md) — milestones and acceptance criteria.
 - [Lab](docs/LAB.md) — verified topology and experiment procedure.
+- [Rules](docs/RULES.md) — selected ET Open rule, license, loader subset, and execution limits.
 
 ## Scope and limitations
 
@@ -121,3 +124,4 @@ or explicitly sanitized.
 ## License
 
 [MIT](LICENSE) — Copyright (c) 2026 Wild-sergunys.
+The bundled ET Open rule retains its own BSD license notice in the `.rules` file.
