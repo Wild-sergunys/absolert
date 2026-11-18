@@ -10,20 +10,20 @@ import (
 
 func example(t *testing.T) string {
 	t.Helper()
-	b, err := os.ReadFile("../../configs/rules/et-vnc-scan.rules")
+	b, err := os.ReadFile("../../configs/rules/et-tcp-scan.rules")
 	if err != nil {
 		t.Fatal(err)
 	}
 	return string(b)
 }
 
-func TestLoadETRule(t *testing.T) {
+func TestLoadETRules(t *testing.T) {
 	rules, err := Load(strings.NewReader(example(t)))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(rules) != 1 {
-		t.Fatalf("rules = %d, want 1", len(rules))
+	if len(rules) != 3 {
+		t.Fatalf("rules = %d, want 3", len(rules))
 	}
 	r := rules[0]
 	if r.SID != 2002910 || r.Revision != 6 || r.Message != "ET SCAN Potential VNC Scan 5800-5820" {
@@ -34,6 +34,12 @@ func TestLoadETRule(t *testing.T) {
 	}
 	if r.Flags != "S,12" || !r.ToServer || r.Class != "attempted-recon" || r.Threshold != (Threshold{Type: "both", Track: "by_src", Count: 5, Seconds: 60}) || r.Metadata == "" {
 		t.Fatalf("options = %+v", r)
+	}
+	if ssh := rules[1]; ssh.SID != 2001219 || ssh.Revision != 20 || ssh.Threshold.Seconds != 120 || ssh.Reference != "url,en.wikipedia.org/wiki/Brute_force_attack" {
+		t.Fatalf("SSH rule = %+v", ssh)
+	}
+	if postgres := rules[2]; postgres.SID != 2010939 || postgres.Revision != 3 || postgres.Threshold.Type != "limit" {
+		t.Fatalf("PostgreSQL rule = %+v", postgres)
 	}
 }
 
@@ -51,7 +57,7 @@ func TestLoadRejectsUnsupportedOrInvalidRules(t *testing.T) {
 		{"large_port", "5800:5820", "65536"},
 		{"fractional_port", "5800:5820", "1.2"},
 		{"bad_flags", "flags:S,12;", "flags:S+;"},
-		{"threshold_type", "type both", "type limit"},
+		{"threshold_type", "type both", "type backoff"},
 		{"threshold_track", "track by_src", "track by_dst"},
 		{"missing_count", "count 5, ", ""},
 		{"duplicate_count", "count 5", "count 5, count 8"},
@@ -63,6 +69,7 @@ func TestLoadRejectsUnsupportedOrInvalidRules(t *testing.T) {
 		{"duplicate_sid", "sid:2002910;", "sid:2002910; sid:1;"},
 		{"missing_semicolon", "rev:6;", "rev:6"},
 		{"missing_message", "msg:\"ET SCAN Potential VNC Scan 5800-5820\";", ""},
+		{"invalid_reference", "reference:url,en.wikipedia.org/wiki/Brute_force_attack;", "reference:url,;"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

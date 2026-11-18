@@ -29,11 +29,18 @@ type Threshold struct {
 	Count, Seconds uint32
 }
 
+// Supported сообщает, умеет ли TCP-детектор применять этот порог.
+func (threshold Threshold) Supported() bool {
+	return (threshold.Type == "both" || threshold.Type == "limit") &&
+		threshold.Track == "by_src" && threshold.Count > 0 && threshold.Seconds > 0
+}
+
 // Rule — проверенное описание условий, а не исполняемый детектор.
 // Сетевые переменные разрешаются отдельно при подготовке движка.
 type Rule struct {
 	SID, Revision            uint32
 	Message, Class, Metadata string
+	Reference                string
 	Source, Destination      Endpoint
 	Flags                    string
 	ToServer                 bool
@@ -147,6 +154,13 @@ func parseRule(text string) (Rule, error) {
 			}
 		case "metadata":
 			r.Metadata = value
+		case "reference":
+			kind, target, ok := strings.Cut(value, ",")
+			if !ok || len(strings.Fields(kind)) != 1 || len(strings.Fields(target)) != 1 {
+				err = fmt.Errorf("ожидается reference:тип,значение")
+			} else {
+				r.Reference = value
+			}
 		default:
 			err = fmt.Errorf("неподдерживаемая опция %q", key)
 		}
@@ -277,8 +291,8 @@ func parseThreshold(value string) (Threshold, error) {
 			return result, err
 		}
 	}
-	if len(seen) != 4 || result.Type != "both" || result.Track != "by_src" {
-		return result, fmt.Errorf("поддерживается threshold:type both,track by_src,count N,seconds T")
+	if !result.Supported() {
+		return result, fmt.Errorf("поддерживается threshold типа both или limit с track by_src, count и seconds")
 	}
 	return result, nil
 }

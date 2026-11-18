@@ -1,4 +1,4 @@
-# Build and test output
+# Результаты сборки и проверок
 /bin/
 /dist/
 *.exe
@@ -8,7 +8,7 @@ coverage.html
 *.prof
 *.pprof
 
-# Machine-specific configuration and secrets
+# Локальная конфигурация и секреты
 .env
 .env.*
 !.env.example
@@ -17,15 +17,25 @@ coverage.html
 go.work
 go.work.sum
 
-# Private traffic and generated analysis
+# Реальные дампы и результаты анализа; исключение только для синтетической записи.
 *.pcap
 *.pcapng
+!/internal/sensor/testdata/et-tcp-scan.pcap
 /graphify-out/
 
-# Editor and OS files
+# Файлы редакторов и операционной системы
 .idea/
 .vscode/
 *.swp
 *~
 .DS_Store
 Thumbs.db
+
+# Зависимости и сборка веб-интерфейса
+/web/node_modules/
+/web/dist/
+*.tsbuildinfo
+
+# Исходный набор логотипов
+/Absolert_PNG_Full_Pack/
+/Absolert_PNG_Full_Pack.zip
