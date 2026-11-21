@@ -1,10 +1,11 @@
 # Выполнять цели независимо от наличия одноимённых файлов.
 .PHONY: build test fmt lint lab-server web-install web-dev web-build web-test
 
-# Собрать сенсор и локальный API в bin/.
+# Собрать сенсор, локальный API и тестовый сервер в bin/.
 build:
 	go build -o bin/absolert ./cmd/absolert
 	go build -o bin/absolert-api ./cmd/absolert-api
+	go build -o bin/absolert-lab ./cmd/absolert-lab
 
 # Проверить все Go-пакеты проекта.
 test:
@@ -25,7 +26,7 @@ LAB_BIND ?= 127.0.0.1
 LAB_PORT ?= 8088
 
 lab-server:
-	python3 scripts/lab_server.py --bind "$(LAB_BIND)" --port "$(LAB_PORT)"
+	go run ./cmd/absolert-lab --bind "$(LAB_BIND)" --port "$(LAB_PORT)"
 
 # Node.js и npm нужны только для веб-интерфейса.
 web-install:

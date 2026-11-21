@@ -32,7 +32,8 @@ make test
 make lint
 ```
 
-`make build` собирает `bin/absolert` и `bin/absolert-api`. Для `make lint`
+`make build` собирает сенсор `bin/absolert`, локальный API `bin/absolert-api`
+и тестовый сервер `bin/absolert-lab`. Для `make lint`
 используйте golangci-lint **2.15.0**, собранный Go 1.27 или новее. CI использует
 ту же версию линтера и читает версию Go из `go.mod`. Если первым в `PATH`
 находится старый линтер, передайте путь к нужному бинарнику:

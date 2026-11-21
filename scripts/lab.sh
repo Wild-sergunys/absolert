@@ -149,7 +149,7 @@ live() {
         fail 'В наборе правил отсутствует SID 2001219 для проверки SSH.'
     grep -E '^alert .*;[[:space:]]*sid:2010939;' "$rules" > "$socket_dir/postgres.rules" ||
         fail 'В наборе правил отсутствует SID 2010939 для проверки PostgreSQL.'
-    python3 scripts/lab_server.py --bind "$linux_ip" --port "$lab_port" \
+    ./bin/absolert-lab --bind "$linux_ip" --port "$lab_port" \
         --replay-socket "$socket_dir/absolert.sock" --replay-peer "$mac_ip" &
     server_pid=$!
     wait_for "$server_pid" server_ready 'HTTP-сервер'
