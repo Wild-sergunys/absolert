@@ -68,7 +68,7 @@ mac_check() {
 }
 
 api_request() {
-    curl --noproxy '*' --fail --silent --max-time 1 "$monitor_url/api/monitor"
+    curl --noproxy '*' --fail --silent --show-error --max-time 1 "$monitor_url/api/monitor"
 }
 
 diagnose() {
@@ -105,14 +105,17 @@ cleanup() {
 }
 
 wait_for() {
-    local pid=$1 check=$2 name=$3 attempt
+    local pid=$1 check=$2 name=$3 attempt check_error
     for ((attempt = 0; attempt < 40; attempt++)); do
         kill -0 "$pid" 2>/dev/null || fail "$name завершился. Смотрите вывод выше и запустите режим check."
-        if "$check"; then
+        if check_error=$("$check" 2>&1); then
             return
         fi
         sleep 0.15
     done
+    if [[ -n $check_error ]]; then
+        printf '%s\n' "$check_error" >&2
+    fi
     fail "$name не готов. Запустите режим check."
 }
 
@@ -121,7 +124,7 @@ api_ready() {
 }
 
 server_ready() {
-    curl --noproxy '*' --fail --silent --max-time 1 --output /dev/null "$lab_url"
+    curl --noproxy '*' --fail --silent --show-error --max-time 1 --output /dev/null "$lab_url"
 }
 
 sensor_ready() {
