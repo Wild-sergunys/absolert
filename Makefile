@@ -1,5 +1,5 @@
 # Выполнять цели независимо от наличия одноимённых файлов.
-.PHONY: build test fmt lint lab-server web-install web-dev web-build web-test
+.PHONY: build test verify-pcap fmt lint lab-server web-install web-dev web-build web-test
 
 # Собрать сенсор, локальный API и тестовый сервер в bin/.
 build:
@@ -10,6 +10,10 @@ build:
 # Проверить все Go-пакеты проекта.
 test:
 	go test ./...
+
+# Проверить доставку алертов из контрольного PCAP до HTTP API.
+verify-pcap:
+	go test -count=1 -v -run '^TestReplayETRulesToMonitorAPI$$' ./internal/sensor
 
 # Применить стандартное форматирование Go-кода.
 fmt:

@@ -77,7 +77,8 @@ func TestProcess(t *testing.T) {
 	}
 }
 
-func TestReplayETRules(t *testing.T) {
+func newReplayDetector(t *testing.T) *detect.TCP {
+	t.Helper()
 	file, err := os.Open("../../configs/rules/et-tcp-scan.rules")
 	if err != nil {
 		t.Fatal(err)
@@ -90,6 +91,11 @@ func TestReplayETRules(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	return detector
+}
+
+func TestReplayETRules(t *testing.T) {
+	detector := newReplayDetector(t)
 	start := time.Date(2026, 11, 18, 12, 0, 0, 0, time.UTC)
 	var out bytes.Buffer
 	if err := Run(context.Background(), "", "testdata/et-tcp-scan.pcap", &out, detector, nil); err != nil {
